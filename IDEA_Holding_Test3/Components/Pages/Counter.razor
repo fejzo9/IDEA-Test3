@@ -7,7 +7,9 @@
 
 <p role="status">Current count: @currentCount</p>
 
-<button class="btn btn-primary" @onclick="IncrementCount">Click me</button>
+<button class="btn btn-primary" @onclick="IncrementCount">Increase</button>
+<button class="btn btn-primary" @onclick="DecrementCount">Decrease</button>
+<button class="btn btn-primary" @onclick="Restart">Restart</button>
 
 @code {
     private int currentCount = 0;
@@ -15,5 +17,13 @@
     private void IncrementCount()
     {
         currentCount++;
+    }
+    private void DecrementCount()
+    {
+        currentCount--;
+    }
+    private void Restart()
+    {
+        currentCount = 0;
     }
 }
