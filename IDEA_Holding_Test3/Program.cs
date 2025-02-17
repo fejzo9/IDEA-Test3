@@ -1,9 +1,10 @@
 ﻿using IDEA_Holding_Test3.Components;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.AspNetCore.Components.Authorization;
 using IDEA_Holding_Test3.Data;
-using Microsoft.AspNetCore.Components.Server;
+using Microsoft.Extensions.DependencyInjection;
+using System;
+using System.Threading.Tasks;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -50,5 +51,46 @@ app.UseAuthorization();   // Omogućili autorizaciju
 // Omogućili Blazor da koristi Authentication & Authorization
 app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode();
+
+async Task SeedRolesAndAdminUser(IServiceProvider serviceProvider)
+{
+    using var scope = serviceProvider.CreateScope();
+    var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+    var userManager = scope.ServiceProvider.GetRequiredService<UserManager<IdentityUser>>();
+
+    string[] roleNames = { "Admin", "User", "Anonymous" };
+
+    foreach (var roleName in roleNames)
+    {
+        if (!await roleManager.RoleExistsAsync(roleName))
+        {
+            await roleManager.CreateAsync(new IdentityRole(roleName));
+        }
+    }
+
+    // Dodavanje početnog admin korisnika 
+    string adminEmail = "admin@admin.com";
+    string adminPassword = "Admin123!";
+
+    if (await userManager.FindByEmailAsync(adminEmail) == null)
+    {
+        var adminUser = new IdentityUser
+        {
+            UserName = adminEmail,
+            Email = adminEmail,
+            EmailConfirmed = true
+        };
+
+        var result = await userManager.CreateAsync(adminUser, adminPassword);
+
+        if (result.Succeeded)
+        {
+            await userManager.AddToRoleAsync(adminUser, "Admin");
+        }
+    }
+}
+
+// Poziv metode nakon što je aplikacija pokrenuta
+await SeedRolesAndAdminUser(app.Services);
 
 app.Run();
