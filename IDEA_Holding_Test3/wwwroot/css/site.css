@@ -1,0 +1,29 @@
+﻿.register-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.register-title {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 30px;
+}
+
+.input-field {
+    margin-bottom: 15px;
+    width: 100%;
+}
+
+.register-btn {
+    background-color: #007bff;
+    color: white;
+    font-weight: bold;
+    padding: 10px;
+    border-radius: 5px;
+    transition: background 0.3s;
+}
+
+    .register-btn:hover {
+        background-color: #0056b3; 
+    }
