@@ -4,20 +4,21 @@
 @inject SignInManager<IdentityUser> SignInManager
 @inject NotificationService NotificationService
 
-<h3>Register</h3>
+<div class="register-container">
+    <h3 class="register-title">Register</h3>
+  <RadzenCard Style="max-width: 400px; margin: auto; padding: 20px; box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);">
+    <RadzenTemplateForm TItem="RegisterModel" Data="@model" Submit="RegisterUser">
+            <RadzenTextBox bind-Value="model.Email" Placeholder="Email" Style="width: 100%;" Class="input-field" />
+            <RadzenTextBox bind-Value="model.Username" Placeholder="Username" Type="text" Style="width: 100%;" Class="input-field" />
+            <RadzenTextBox bind-Value="model.Password" Type="password" Placeholder="Password" Style="width: 100%;" Class="input-field" />
+            <RadzenTextBox bind-Value="model.ConfirmPassword" Type="password" Placeholder="Confirm Password" Class="input-field" />
 
-<RadzenFieldset Text="Register">
-<RadzenTemplateForm TItem="RegisterModel" Data="@model" Submit="RegisterUser">
-    <RadzenTextBox bind-Value="model.Email" Placeholder="Email" Style="width: 100%;" />
-    <RadzenTextBox bind-Value="model.Username" Placeholder="Username"  Type="text" Style="width: 100%;" />
-    <RadzenTextBox bind-Value="model.Password" Type="password" Placeholder="Password" Style="width: 100%;" />
-    <RadzenTextBox bind-Value="model.ConfirmPassword" Type="password" Placeholder="Confirm Password" />
-
-        <RadzenButton Text="Register" ButtonType="ButtonType.Submit" Style="width: 100%;" />
-</RadzenTemplateForm>
-</RadzenFieldset>
+            <RadzenButton Text="Register" ButtonType="ButtonType.Submit" Style="width: 100%;" Class="register-btn" />
+    </RadzenTemplateForm>
+  </RadzenCard>
 
 <RadzenNotification />
+</div>
 
 @code {
     private RegisterModel model = new RegisterModel();
