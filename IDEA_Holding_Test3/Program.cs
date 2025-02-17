@@ -25,7 +25,6 @@ builder.Services.AddDefaultIdentity<IdentityUser>(options =>
 
 // Registracija NotificationService-a
 builder.Services.AddScoped<NotificationService>();
-
 builder.Services.AddScoped<UserManager<IdentityUser>>();
 builder.Services.AddScoped<SignInManager<IdentityUser>>();
 builder.Services.AddScoped<RoleManager<IdentityRole>>();
@@ -33,6 +32,13 @@ builder.Services.AddScoped<RoleManager<IdentityRole>>();
 // Podrška za Blazor Server i Razor komponente
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
+
+builder.Services.ConfigureApplicationCookie(options =>
+{
+    options.LoginPath = "/login";
+    options.LogoutPath = "/logout";
+    options.AccessDeniedPath = "/accessdenied";
+});
 
 var app = builder.Build();
 
