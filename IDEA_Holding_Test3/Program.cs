@@ -76,7 +76,7 @@ async Task SeedRolesAndAdminUser(IServiceProvider serviceProvider)
     {
         var adminUser = new IdentityUser
         {
-            UserName = adminEmail,
+            UserName = "admin",
             Email = adminEmail,
             EmailConfirmed = true
         };
