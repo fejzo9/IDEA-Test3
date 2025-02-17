@@ -2,9 +2,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using IDEA_Holding_Test3.Data;
-using Microsoft.Extensions.DependencyInjection;
-using System;
-using System.Threading.Tasks;
+using Radzen;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -18,14 +16,19 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 builder.Services.AddDefaultIdentity<IdentityUser>(options =>
 {
     options.Password.RequireDigit = false;
-    options.Password.RequiredLength = 6;
+    options.Password.RequiredLength = 8;
     options.Password.RequireNonAlphanumeric = false;
     options.Password.RequireUppercase = false;
 })
     .AddRoles<IdentityRole>()  // Dodaj podršku za role (Admin, User)
     .AddEntityFrameworkStores<ApplicationDbContext>();
 
-// AuthenticationStateProvider - omogućava Blazor-u da koristi login sesije
+// Registracija NotificationService-a
+builder.Services.AddScoped<NotificationService>();
+
+builder.Services.AddScoped<UserManager<IdentityUser>>();
+builder.Services.AddScoped<SignInManager<IdentityUser>>();
+builder.Services.AddScoped<RoleManager<IdentityRole>>();
 
 // Podrška za Blazor Server i Razor komponente
 builder.Services.AddRazorComponents()
