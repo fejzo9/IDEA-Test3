@@ -4,63 +4,99 @@
 @inject SignInManager<IdentityUser> SignInManager
 @inject NotificationService NotificationService
 
-<div class="register-container">
     <h3 class="register-title">Register</h3>
-  <RadzenCard Style="max-width: 400px; margin: auto; padding: 20px; box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);">
-    <RadzenTemplateForm TItem="RegisterModel" Data="@model" Submit="RegisterUser">
+<div class="register-container">
+
+    <RadzenCard Style="max-width: 400px; margin: auto; padding: 20px; box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);">
+        <RadzenTemplateForm TItem="RegisterModel" Data="@model" Submit="@OnSubmit">
             <RadzenTextBox bind-Value="model.Email" Placeholder="Email" Style="width: 100%;" Class="input-field" />
+            <RadzenRequiredValidator Component="model.Email" Text="Email is required" Style="color: red;" />
+
             <RadzenTextBox bind-Value="model.Username" Placeholder="Username" Type="text" Style="width: 100%;" Class="input-field" />
+            <RadzenRequiredValidator Component="model.Username" Text="Username is required" Style="color: red;" />
+
             <RadzenTextBox bind-Value="model.Password" Type="password" Placeholder="Password" Style="width: 100%;" Class="input-field" />
-            <RadzenTextBox bind-Value="model.ConfirmPassword" Type="password" Placeholder="Confirm Password" Class="input-field" />
+            <RadzenRequiredValidator Component="model.Password" Text="Password is required" Style="color: red;" />
+
+            <RadzenTextBox bind-Value="model.ConfirmPassword" Type="password" Placeholder="Confirm Password" Style="width: 100%;" Class="input-field" />
+            <RadzenRequiredValidator Component="model.ConfirmPassword" Text="Please confirm your password" Style="color: red;" />
 
             <RadzenButton Text="Register" ButtonType="ButtonType.Submit" Style="width: 100%;" Class="register-btn" />
-    </RadzenTemplateForm>
-  </RadzenCard>
+        </RadzenTemplateForm>
+    </RadzenCard>
 
-<RadzenNotification />
+    <RadzenNotification />
 </div>
 
 @code {
     private RegisterModel model = new RegisterModel();
 
+    async Task OnSubmit()
+    {
+        Console.WriteLine("OnSubmit event triggered!");
+        await RegisterUser();
+    }
+
     async Task RegisterUser()
     {
-        // Provjera da li lozinke odgovaraju
-        if (model.Password != model.ConfirmPassword)
+        try
         {
-            NotificationService.Notify(NotificationSeverity.Error, "Passwords do not match!");
-            return;
-        }
+            Console.WriteLine("RegisterUser method started...");
+            NotificationService.Notify(NotificationSeverity.Info, "Register button clicked!");
 
-        // Provjera minimalne dužine lozinke
-        if (model.Password.Length < 8)
-        {
-            NotificationService.Notify(NotificationSeverity.Error, "Password must be at least 8 characters long!");
-            return;
-        }
-
-        // Kreiranje novog korisnika
-        var user = new IdentityUser
+            if (string.IsNullOrWhiteSpace(model.Email) || string.IsNullOrWhiteSpace(model.Username) ||
+                string.IsNullOrWhiteSpace(model.Password) || string.IsNullOrWhiteSpace(model.ConfirmPassword))
             {
-                UserName = model.Username,
-                Email = model.Email
-            };
-
-        var result = await UserManager.CreateAsync(user, model.Password);
-
-        if (result.Succeeded)
-        {
-            // Automatska prijava korisnika nakon registracije
-            await SignInManager.SignInAsync(user, isPersistent: false);
-            Navigation.NavigateTo("/");
-        }
-        else
-        {
-            // Prikazivanje greške ako registracija nije uspjela
-            foreach (var error in result.Errors)
-            {
-                NotificationService.Notify(NotificationSeverity.Error, error.Description);
+                Console.WriteLine("All fields are required!");
+                NotificationService.Notify(NotificationSeverity.Error, "All fields are required!");
+                return;
             }
+
+            if (model.Password != model.ConfirmPassword)
+            {
+                Console.WriteLine("Password don't match!");
+                NotificationService.Notify(NotificationSeverity.Error, "Passwords do not match!");
+                return;
+            }
+
+            if (model.Password.Length < 8)
+            {
+                Console.WriteLine("Password too short!");
+                NotificationService.Notify(NotificationSeverity.Error, "Password must be at least 8 characters long!");
+                return;
+            }
+
+            var user = new IdentityUser
+                {
+                    UserName = model.Username,
+                    Email = model.Email
+                };
+
+            Console.WriteLine($"Attempting to create user: {model.Email}");
+
+            var result = await UserManager.CreateAsync(user, model.Password);
+
+            if (result.Succeeded)
+            {
+                Console.WriteLine("User created successfully!");
+                NotificationService.Notify(NotificationSeverity.Success, "Registration successful!");
+                await SignInManager.SignInAsync(user, isPersistent: false);
+                Navigation.NavigateTo("/");
+            }
+            else
+            {
+                Console.WriteLine("User creation failed!");
+                foreach (var error in result.Errors)
+                {
+                    Console.WriteLine($"Error: {error.Description}");
+                    NotificationService.Notify(NotificationSeverity.Error, error.Description);
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Exception in RegisterUser: {ex.Message}");
+            NotificationService.Notify(NotificationSeverity.Error, "An error occurred during registration.");
         }
     }
 
